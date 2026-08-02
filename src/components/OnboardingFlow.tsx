@@ -44,10 +44,10 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const handleComplete = () => {
     const fullProfile: UserProfile = {
       name: profile.name || 'User',
-      age: profile.age || 25,
+      age: profile.age ?? 25,
       sex: profile.sex || 'male',
-      weightKg: profile.weightKg || 70,
-      heightCm: profile.heightCm || 175,
+      weightKg: profile.weightKg ?? 70,
+      heightCm: profile.heightCm ?? 175,
       activityLevel: profile.activityLevel as 1 | 2 | 3 | 4 | 5,
       goal: profile.goal || 'maintain',
       createdAt: new Date().toISOString(),
@@ -97,8 +97,8 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 type="number"
                 className="input"
                 placeholder="25"
-                value={profile.age || ''}
-                onChange={(e) => setProfile({ ...profile, age: parseInt(e.target.value) || 25 })}
+                value={profile.age ?? ''}
+                onChange={(e) => setProfile({ ...profile, age: e.target.value === '' ? undefined : parseInt(e.target.value) })}
               />
             </div>
           </div>
@@ -116,8 +116,8 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 type="number"
                 className="input"
                 placeholder="70"
-                value={profile.weightKg || ''}
-                onChange={(e) => setProfile({ ...profile, weightKg: parseFloat(e.target.value) || 70 })}
+                value={profile.weightKg ?? ''}
+                onChange={(e) => setProfile({ ...profile, weightKg: e.target.value === '' ? undefined : parseFloat(e.target.value) })}
               />
             </div>
 
@@ -127,8 +127,8 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 type="number"
                 className="input"
                 placeholder="175"
-                value={profile.heightCm || ''}
-                onChange={(e) => setProfile({ ...profile, heightCm: parseFloat(e.target.value) || 175 })}
+                value={profile.heightCm ?? ''}
+                onChange={(e) => setProfile({ ...profile, heightCm: e.target.value === '' ? undefined : parseFloat(e.target.value) })}
               />
             </div>
           </div>
