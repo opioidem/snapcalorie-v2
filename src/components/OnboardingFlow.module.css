@@ -1,0 +1,174 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 1rem;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.progress {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.progressDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: background 0.3s, transform 0.3s;
+}
+
+.progressDot.active {
+  background: var(--accent);
+  transform: scale(1.2);
+}
+
+.step {
+  flex: 1;
+  animation: fade-in 0.3s ease;
+}
+
+.step h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+}
+
+.field {
+  margin-bottom: 1.5rem;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.option {
+  padding: 1rem;
+  border: 2px solid var(--border);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.option:hover {
+  border-color: var(--accent);
+  background: var(--bg-card-raised);
+}
+
+.option.selected {
+  border-color: var(--accent);
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.optionLabel {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.optionDesc {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.planPreview {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: var(--bg-card-raised);
+  border: 2px solid var(--accent);
+  text-align: center;
+}
+
+.planTitle {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.planCalories {
+  font-size: 2.5rem;
+  font-weight: 200;
+  color: var(--accent-light);
+}
+
+.planProtein {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.visionSources {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.visionSource {
+  padding: 1rem;
+  border: 2px solid var(--border);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.visionSource:hover {
+  border-color: var(--accent);
+}
+
+.visionSource.selected {
+  border-color: var(--accent);
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.visionSourceHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.visionSourceName {
+  flex: 1;
+  font-weight: 500;
+}
+
+.badgeOnDevice {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  padding: 0.25rem 0.5rem;
+  background: rgba(34, 197, 94, 0.2);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: var(--success);
+}
+
+.badgeKey {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  padding: 0.25rem 0.5rem;
+  background: var(--bg-card-raised);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.apiKeyField {
+  margin-top: 0.75rem;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  padding-top: 2rem;
+}
+
+.actions .btn {
+  flex: 1;
+}

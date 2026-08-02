@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SnapCalorie V2
 
-## Getting Started
+AI-powered calorie tracker with multiple vision sources for food detection. On-device (WebLLM) or cloud (OpenRouter, NVIDIA NIM, Groq, Custom).
 
-First, run the development server:
+**Live:** https://snapcalorie-v2.vercel.app
+
+## Features
+
+- **5 vision sources** for food detection:
+  - **WebLLM** (on-device, no API key, fully private)
+  - **OpenRouter** (free tier)
+  - **NVIDIA NIM** (fast inference)
+  - **Groq** (ultra-fast)
+  - **Custom endpoint** (any OpenAI-compatible API)
+- **5-page onboarding**: Profile, Stats, Activity, Goal, AI Setup
+- **USDA FoodData Central** integration for accurate nutrition
+- **Brutalist dark UI** with JetBrains Mono
+- **localStorage persistence** - no auth, no backend
+- **Date strip** + day rail + macro bars
+
+## Tech Stack
+
+- Next.js 16 + React 19 + TypeScript
+- @mlc-ai/web-llm (Phi-3.5-vision-instruct)
+- USDA FoodData Central API
+- localStorage for persistence
+
+## Setup
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Build for production:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build
+npm start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Deploy to Vercel:
 
-## Learn More
+```bash
+vercel --prod
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Architecture
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+src/
+  app/
+    layout.tsx
+    page.tsx              # Routing: onboarding OR dashboard
+    globals.css           # Design system
+  components/
+    OnboardingFlow.tsx    # 5-step flow
+    Dashboard.tsx         # Main app
+    Camera.tsx            # Photo capture modal
+    FoodResult.tsx        # Detection result UI
+  lib/
+    types.ts              # All TS interfaces
+    storage.ts            # localStorage helpers
+    fitness.ts            # BMR/TDEE calculations
+    vision.ts             # 5 vision source implementations
+    usda.ts               # USDA API client
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Android APK
 
-## Deploy on Vercel
+A Capacitor-based Android wrapper is included in `android/`. Build with:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+cd android && ./gradlew assembleDebug
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The APK output is at `android/app/build/outputs/apk/debug/app-debug.apk`.
+
+## License
+
+MIT

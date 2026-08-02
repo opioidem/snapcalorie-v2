@@ -1,0 +1,268 @@
+.container {
+  min-height: 100vh;
+  padding-bottom: 5rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+}
+
+.header h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.dateStrip {
+  display: flex;
+  padding: 0 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.dateChip {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.75rem 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.dateChip:hover {
+  background: var(--bg-card-raised);
+}
+
+.dateChip.active {
+  background: var(--accent);
+}
+
+.dateChipDay {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.dateChip.active .dateChipDay {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.dateChipDate {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.dateChip.active .dateChipDate {
+  color: white;
+}
+
+.hero {
+  text-align: center;
+  padding: 2rem 1rem;
+  position: relative;
+}
+
+.heroGlow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200px;
+  height: 200px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%);
+  animation: pulse-glow 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.heroLabel {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  position: relative;
+}
+
+.heroNumber {
+  font-size: 4rem;
+  font-weight: 200;
+  color: var(--accent-light);
+  line-height: 1;
+  position: relative;
+}
+
+.heroNumber.over {
+  color: var(--error);
+}
+
+.heroSub {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+  position: relative;
+}
+
+.dayRail {
+  height: 8px;
+  display: flex;
+  gap: 2px;
+  margin: 0 1rem 1.5rem;
+  overflow: hidden;
+}
+
+.railSegment {
+  height: 100%;
+  transform-origin: left center;
+  transition: transform 0.3s ease;
+  will-change: transform;
+}
+
+.railSegment.protein {
+  background: var(--protein);
+}
+
+.railSegment.carbs {
+  background: var(--carbs);
+}
+
+.railSegment.fat {
+  background: var(--fat);
+}
+
+.macroSection {
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.foodLog {
+  padding: 1rem;
+}
+
+.foodLog h2 {
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-secondary);
+}
+
+.emptyIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.emptyHint {
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.foodList {
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+}
+
+.foodEntry {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s;
+}
+
+.foodEntry:hover {
+  background: var(--bg-card-raised);
+}
+
+.foodEntry:last-child {
+  border-bottom: none;
+}
+
+.foodInfo {
+  flex: 1;
+}
+
+.foodName {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.foodMeta {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.foodCalories {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-right: 1rem;
+}
+
+.deleteBtn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.deleteBtn:hover {
+  color: var(--error);
+}
+
+.status {
+  position: fixed;
+  bottom: 6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-card-raised);
+  border: 2px solid var(--border);
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  animation: fade-in 0.3s ease;
+}
+
+.fab {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: none;
+  color: white;
+  font-size: 2rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+  transition: transform 0.15s, box-shadow 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.5);
+}
+
+.fab:active {
+  transform: scale(0.95);
+}
+
+.fab:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
