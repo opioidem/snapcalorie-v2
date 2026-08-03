@@ -158,7 +158,7 @@ export default function WorkoutTab() {
               {/* Progress bar */}
               <div className={styles.progress}>
                 <div className={styles.progressBar}>
-                  <div className={styles.progressFill} style={{ width: `${progressPct}%` }} />
+                  <div className={styles.progressFill} style={{ transform: `scaleX(${progressPct / 100})` }} />
                 </div>
                 <span className={styles.progressText}>{completedCount}/{currentDay.exercises.length}</span>
               </div>

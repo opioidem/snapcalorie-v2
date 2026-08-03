@@ -109,7 +109,7 @@ export default function HistoryTab() {
         <div className={styles.progressBar}>
           <div
             className={`${styles.progressFill} ${isOver ? styles.overBar : ''}`}
-            style={{ width: `${pct}%` }}
+            style={{ transform: `scaleX(${pct / 100})` }}
           />
         </div>
         <span className={styles.progressText}>
