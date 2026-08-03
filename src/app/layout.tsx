@@ -34,6 +34,11 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="referrer" content="strict-origin-when-cross-origin" />
+        <meta
+          httpEquiv="Content-Security-Policy"
+          content="default-src 'self'; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline'; connect-src 'self' https://integrate.api.nvidia.com https://api.groq.com https://openrouter.ai https://api.nal.usda.gov; worker-src 'self' blob:; frame-ancestors 'none';"
+        />
       </head>
       <body>{children}</body>
     </html>

@@ -34,6 +34,7 @@ export default function Dashboard({ onResetOnboarding }: DashboardProps) {
   const [usdaResult, setUsdaResult] = useState<USDAFood | null>(null);
   const [selectedDate, setSelectedDate] = useState(getTodayDate());
   const [modelLoaded, setModelLoaded] = useState(false);
+  const [lastAnalysisAt, setLastAnalysisAt] = useState(0);
 
   // Load state on mount
   useEffect(() => {
@@ -78,6 +79,16 @@ export default function Dashboard({ onResetOnboarding }: DashboardProps) {
   const isOver = remaining < 0;
 
   const handleCapture = useCallback(async (imageBase64: string) => {
+    // Client-side cooldown (10s) to prevent API quota abuse
+    const now = Date.now();
+    const cooldownMs = 10_000;
+    if (now - lastAnalysisAt < cooldownMs) {
+      const waitSec = Math.ceil((cooldownMs - (now - lastAnalysisAt)) / 1000);
+      setStatus(`Please wait ${waitSec}s before analyzing again`);
+      return;
+    }
+    setLastAnalysisAt(now);
+
     setAnalyzing(true);
     setStatus('Analyzing...');
     setShowCamera(false);
@@ -102,11 +113,13 @@ export default function Dashboard({ onResetOnboarding }: DashboardProps) {
         console.error('USDA search failed:', e);
       }
     } catch (e: any) {
-      setStatus(`Error: ${e.message}`);
+      // Log full error to console for debugging; show generic message to user
+      console.error('Vision analysis failed:', e);
+      setStatus('Analysis failed — try again');
     } finally {
       setAnalyzing(false);
     }
-  }, [visionSource, apiKeys]);
+  }, [visionSource, apiKeys, lastAnalysisAt]);
 
   const handleConfirm = useCallback(() => {
     if (!visionResult) return;

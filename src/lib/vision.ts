@@ -284,6 +284,36 @@ function parseVisionResponse(content: string): VisionResult {
   }
 }
 
+// ========== URL Validation (SSRF protection) ==========
+
+/**
+ * Validate a custom endpoint URL to prevent SSRF / phishing.
+ * Requires HTTPS, blocks loopback and private network ranges.
+ */
+export function isValidEndpoint(url: string): boolean {
+  try {
+    const u = new URL(url);
+    if (u.protocol !== 'https:') return false;
+
+    const host = u.hostname.toLowerCase();
+    // Loopback / private / link-local / metadata addresses
+    const blocked = [
+      /^localhost$/,
+      /^127\./,
+      /^10\./,
+      /^192\.168\./,
+      /^169\.254\./,
+      /^0\.0\.0\.0$/,
+      /^::1$/,
+      /^fc00:/i,
+      /^fe80:/i,
+    ];
+    return !blocked.some(re => re.test(host));
+  } catch {
+    return false;
+  }
+}
+
 // ========== Main Detection Function ==========
 
 export interface DetectFoodOptions {
@@ -318,6 +348,9 @@ export async function detectFood(options: DetectFoodOptions): Promise<VisionResu
 
     case 'custom':
       if (!apiKeys.customEndpoint) throw new Error('Custom endpoint required');
+      if (!isValidEndpoint(apiKeys.customEndpoint)) {
+        throw new Error('Invalid endpoint URL — must be HTTPS and not a private network address');
+      }
       if (!apiKeys.openrouter) throw new Error('API key required for custom endpoint');
       onProgress?.('Analyzing with custom endpoint...');
       return await detectWithCustom(

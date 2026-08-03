@@ -8,6 +8,8 @@ interface CameraProps {
   onClose: () => void;
 }
 
+const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10 MB cap to prevent OOM / API quota drain
+
 export default function Camera({ onCapture, onClose }: CameraProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -19,6 +21,12 @@ export default function Camera({ onCapture, onClose }: CameraProps) {
 
     if (!file.type.startsWith('image/')) {
       setError('Please select an image file');
+      return;
+    }
+
+    if (file.size > MAX_FILE_BYTES) {
+      const mb = Math.round(file.size / 1024 / 1024);
+      setError(`Image is too large (${mb} MB). Max is 10 MB.`);
       return;
     }
 
