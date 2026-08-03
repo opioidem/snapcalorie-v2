@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { FoodEntry, VisionResult, ApiKeys } from '@/lib/types';
-import { loadAppState, addFoodEntry, deleteFoodEntry } from '@/lib/storage';
-import { detectFood, isWebLLMLoaded } from '@/lib/vision';
+import { loadAppState, addFoodEntry, deleteFoodEntry, getRollover, setRollover as saveRollover, CalorieRollover } from '@/lib/storage';
+import { detectFood } from '@/lib/vision';
 import { searchUSDA, USDAFood } from '@/lib/usda';
 import { calculatePlan } from '@/lib/fitness';
 import { applyTheme, getThemeId } from '@/lib/themes';
@@ -33,8 +33,17 @@ export default function Dashboard({ onResetOnboarding }: DashboardProps) {
   const [visionResult, setVisionResult] = useState<VisionResult | null>(null);
   const [usdaResult, setUsdaResult] = useState<USDAFood | null>(null);
   const [selectedDate, setSelectedDate] = useState(getTodayDate());
-  const [modelLoaded, setModelLoaded] = useState(false);
   const [lastAnalysisAt, setLastAnalysisAt] = useState(0);
+  const [rollover, setRollover] = useState<CalorieRollover | null>(null);
+  const [showRolloverPrompt, setShowRolloverPrompt] = useState(false);
+  const [pendingExtraCalories, setPendingExtraCalories] = useState(0);
+
+  const isToday = selectedDate === getTodayDate();
+  const target = profile?.dailyCalories || 2000;
+  // If viewing today and rollover exists for today, add it to target
+  const effectiveTarget = isToday && rollover?.date === getTodayDate()
+    ? target + rollover.calories
+    : target;
 
   // Load state on mount
   useEffect(() => {
@@ -42,6 +51,9 @@ export default function Dashboard({ onResetOnboarding }: DashboardProps) {
     setFoodLog(state.foodLog);
     setApiKeys(state.apiKeys);
     setVisionSource(state.selectedVisionSource);
+    // Load rollover
+    const saved = getRollover();
+    if (saved) setRollover(saved);
 
     // Apply saved theme
     applyTheme(getThemeId());
@@ -65,7 +77,7 @@ export default function Dashboard({ onResetOnboarding }: DashboardProps) {
   const carbs = todayFood.reduce((sum, f) => sum + f.carbs, 0);
   const fat = todayFood.reduce((sum, f) => sum + f.fat, 0);
 
-  const remaining = (profile?.dailyCalories || 2000) - consumed;
+  const remaining = effectiveTarget - consumed;
   const isOver = remaining < 0;
 
   const handleCapture = useCallback(async (imageBase64: string) => {
@@ -132,12 +144,32 @@ export default function Dashboard({ onResetOnboarding }: DashboardProps) {
     setVisionResult(null);
     setUsdaResult(null);
     setStatus(null);
-  }, [visionResult, usdaResult]);
+
+    // Check if this food pushed us over target — prompt for rollover
+    const totalCal = newLog.filter(e => e.date === getTodayDate()).reduce((s, e) => s + e.calories, 0);
+    if (totalCal > target) {
+      setPendingExtraCalories(Math.round(totalCal - target));
+      setShowRolloverPrompt(true);
+    }
+  }, [visionResult, usdaResult, target]);
 
   const handleDelete = useCallback((id: string) => {
     const newLog = deleteFoodEntry(id);
     setFoodLog(newLog);
   }, []);
+
+  const handleRolloverConfirm = () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const newRollover = { date: tomorrow.toISOString().split('T')[0], calories: pendingExtraCalories };
+    setRollover(newRollover);
+    saveRollover(newRollover);
+    setShowRolloverPrompt(false);
+  };
+
+  const handleRolloverDecline = () => {
+    setShowRolloverPrompt(false);
+  };
 
   return (
     <div className={styles.container}>
@@ -173,7 +205,10 @@ export default function Dashboard({ onResetOnboarding }: DashboardProps) {
               {Math.abs(remaining)}
             </div>
             <div className={styles.heroSub}>
-              {isOver ? `${Math.abs(remaining)} over` : `of ${profile?.dailyCalories || 2000}`}
+              {isOver ? `${Math.abs(remaining)} over` : `of ${effectiveTarget}`}
+              {isToday && rollover?.date === getTodayDate() && rollover.calories > 0 && (
+                <span className={styles.rolloverBadge}>+{rollover.calories} rolled</span>
+              )}
             </div>
           </div>
 
@@ -273,13 +308,19 @@ export default function Dashboard({ onResetOnboarding }: DashboardProps) {
           </div>
 
           {/* FAB */}
-          <button
-            className={styles.fab}
-            onClick={() => setShowCamera(true)}
-            disabled={analyzing}
-          >
-            +
-          </button>
+          {isToday ? (
+            <button
+              className={styles.fab}
+              onClick={() => setShowCamera(true)}
+              disabled={analyzing}
+            >
+              +
+            </button>
+          ) : (
+            <div className={styles.viewingPast}>
+              Viewing past day — food can only be logged for today
+            </div>
+          )}
         </>
       )}
 
@@ -316,6 +357,25 @@ export default function Dashboard({ onResetOnboarding }: DashboardProps) {
             setUsdaResult(null);
           }}
         />
+      )}
+
+      {/* Rollover Prompt */}
+      {showRolloverPrompt && (
+        <div className={styles.rolloverOverlay} onClick={handleRolloverDecline}>
+          <div className={styles.rolloverCard} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.rolloverIcon}>🎯</div>
+            <h3>Over by {pendingExtraCalories} kcal</h3>
+            <p>Roll the extra calories over to tomorrow?</p>
+            <div className={styles.rolloverActions}>
+              <button className="btn" onClick={handleRolloverConfirm}>
+                Roll Over
+              </button>
+              <button className="btn btn-outline" onClick={handleRolloverDecline}>
+                Don't Roll
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Camera Modal */}

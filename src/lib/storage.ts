@@ -82,4 +82,31 @@ export function setOnboardingComplete(complete: boolean): void {
 
 export function clearAllData(): void {
   Object.values(KEYS).forEach(key => localStorage.removeItem(key));
+  localStorage.removeItem('snapcal_rollover');
+}
+
+// ───── Calorie rollover ─────
+
+export interface CalorieRollover {
+  date: string;      // the day the excess was earned
+  calories: number;  // positive = extra earned, negative = deficit carried
+}
+
+export function getRollover(): CalorieRollover | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem('snapcal_rollover');
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function setRollover(rollover: CalorieRollover | null): void {
+  if (typeof window === 'undefined') return;
+  if (rollover) {
+    localStorage.setItem('snapcal_rollover', JSON.stringify(rollover));
+  } else {
+    localStorage.removeItem('snapcal_rollover');
+  }
 }
