@@ -30,27 +30,51 @@ interface ChatCompletionResponse {
 // ========== WebLLM (On-Device) ==========
 
 let webLLMEngine: any = null;
+let webLLMLoading = false;
+const MODEL_ID = 'Phi-3.5-vision-instruct-q4f16_1-MLC';
 
 export async function initWebLLM(
-  modelId: string,
   onProgress?: (progress: string) => void
 ): Promise<boolean> {
   if (typeof window === 'undefined') return false;
+  // Already loaded — skip
+  if (webLLMEngine) return true;
+  // Already loading — wait
+  if (webLLMLoading) {
+    return new Promise(resolve => {
+      const check = setInterval(() => {
+        if (webLLMEngine) { clearInterval(check); resolve(true); }
+        if (!webLLMLoading && !webLLMEngine) { clearInterval(check); resolve(false); }
+      }, 500);
+    });
+  }
+
+  webLLMLoading = true;
 
   try {
     const { CreateMLCEngine } = await import('@mlc-ai/web-llm');
 
-    webLLMEngine = await CreateMLCEngine(modelId, {
+    webLLMEngine = await CreateMLCEngine(MODEL_ID, {
       initProgressCallback: (report: any) => {
         onProgress?.(report.text || `${Math.round(report.progress * 100)}%`);
       },
+      appConfig: {
+        cacheBackend: 'indexeddb',
+      } as any,
     });
 
+    webLLMLoading = false;
     return true;
   } catch (error) {
     console.error('WebLLM init failed:', error);
+    webLLMEngine = null;
+    webLLMLoading = false;
     return false;
   }
+}
+
+export function isWebLLMLoaded(): boolean {
+  return !!webLLMEngine;
 }
 
 async function detectWithWebLLM(imageBase64: string): Promise<VisionResult> {
@@ -314,6 +338,35 @@ export function isValidEndpoint(url: string): boolean {
   }
 }
 
+// ========== Image Compression ==========
+
+/**
+ * Resize a base64 image to max 1024px, JPEG quality 0.7.
+ * Returns compressed base64 string (without data URI prefix).
+ */
+export async function compressImage(base64: string, maxSize = 1024): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      let w = img.width;
+      let h = img.height;
+      if (w > maxSize || h > maxSize) {
+        if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+        else { w = Math.round(w * maxSize / h); h = maxSize; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d')!;
+      ctx.drawImage(img, 0, 0, w, h);
+      const compressed = canvas.toDataURL('image/jpeg', 0.7);
+      resolve(compressed.split(',')[1]);
+    };
+    img.onerror = () => resolve(base64); // fallback to original
+    img.src = `data:image/jpeg;base64,${base64}`;
+  });
+}
+
 // ========== Main Detection Function ==========
 
 export interface DetectFoodOptions {
@@ -324,11 +377,19 @@ export interface DetectFoodOptions {
 }
 
 export async function detectFood(options: DetectFoodOptions): Promise<VisionResult> {
-  const { source, imageBase64, apiKeys, onProgress } = options;
+  const { source, apiKeys, onProgress } = options;
+
+  // Compress image before sending to any source
+  onProgress?.('Preparing image...');
+  const imageBase64 = await compressImage(options.imageBase64);
 
   switch (source) {
     case 'webllm':
-      onProgress?.('Running on-device model...');
+      onProgress?.(isWebLLMLoaded() ? 'Analyzing with on-device model...' : 'Loading on-device model (first time takes ~2 min)...');
+      if (!isWebLLMLoaded()) {
+        const loaded = await initWebLLM(onProgress);
+        if (!loaded) throw new Error('Failed to load on-device model');
+      }
       return await detectWithWebLLM(imageBase64);
 
     case 'openrouter':

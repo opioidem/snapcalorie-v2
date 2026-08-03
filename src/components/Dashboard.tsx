@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { FoodEntry, VisionResult, ApiKeys } from '@/lib/types';
 import { loadAppState, addFoodEntry, deleteFoodEntry } from '@/lib/storage';
-import { detectFood, initWebLLM } from '@/lib/vision';
+import { detectFood, isWebLLMLoaded } from '@/lib/vision';
 import { searchUSDA, USDAFood } from '@/lib/usda';
 import { calculatePlan } from '@/lib/fitness';
 import { applyTheme, getThemeId } from '@/lib/themes';
@@ -56,16 +56,6 @@ export default function Dashboard({ onResetOnboarding }: DashboardProps) {
         state.profile.goal
       );
       setProfile({ dailyCalories: plan.dailyCalories, protein: plan.protein });
-    }
-
-    // Preload WebLLM if selected
-    if (state.selectedVisionSource === 'webllm' && typeof window !== 'undefined') {
-      initWebLLM('Phi-3.5-vision-instruct-q4f16_1-MLC', (progress) => {
-        setStatus(progress);
-      }).then(() => {
-        setModelLoaded(true);
-        setStatus(null);
-      });
     }
   }, []);
 
