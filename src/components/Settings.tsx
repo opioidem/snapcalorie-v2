@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { UserProfile, ApiKeys, VISION_SOURCES } from '@/lib/types';
-import { loadAppState, saveProfile, saveApiKeys, setVisionSource, clearAllData } from '@/lib/storage';
+import { loadAppState, saveProfile, saveApiKeys, setVisionSource as saveVisionSource, clearAllData } from '@/lib/storage';
 import { calculatePlan } from '@/lib/fitness';
 import { THEMES, applyTheme, getThemeId, setThemeId } from '@/lib/themes';
 import Icon from './Icons';
@@ -71,7 +71,7 @@ export default function Settings({ onClose, onReset }: SettingsProps) {
 
   const handleSaveApiKeys = () => {
     saveApiKeys(apiKeys);
-    setVisionSource(visionSource);
+    saveVisionSource(visionSource);
   };
 
   const handleThemeChange = (themeId: string) => {
@@ -228,7 +228,7 @@ export default function Settings({ onClose, onReset }: SettingsProps) {
                 <div
                   key={source.id}
                   className={`${styles.visionOption} ${visionSource === source.id ? styles.visionActive : ''}`}
-                  onClick={() => setVisionSource(source.id)}
+                  onClick={() => { setVisionSource(source.id); saveVisionSource(source.id); }}
                 >
                   <div className={styles.visionName}>{source.name}</div>
                   <div className={styles.visionBadges}>
