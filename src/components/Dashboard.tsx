@@ -7,8 +7,10 @@ import { loadAppState, addFoodEntry, deleteFoodEntry } from '@/lib/storage';
 import { detectFood, initWebLLM } from '@/lib/vision';
 import { searchUSDA, USDAFood } from '@/lib/usda';
 import { calculatePlan } from '@/lib/fitness';
+import { applyTheme, getThemeId } from '@/lib/themes';
 import Camera from './Camera';
 import FoodResult from './FoodResult';
+import Settings from './Settings';
 import styles from './Dashboard.module.css';
 
 interface DashboardProps {
@@ -21,6 +23,7 @@ export default function Dashboard({ onResetOnboarding }: DashboardProps) {
   const [apiKeys, setApiKeys] = useState<ApiKeys>({});
   const [visionSource, setVisionSource] = useState('webllm');
   const [showCamera, setShowCamera] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [visionResult, setVisionResult] = useState<VisionResult | null>(null);
@@ -34,6 +37,9 @@ export default function Dashboard({ onResetOnboarding }: DashboardProps) {
     setFoodLog(state.foodLog);
     setApiKeys(state.apiKeys);
     setVisionSource(state.selectedVisionSource);
+
+    // Apply saved theme
+    applyTheme(getThemeId());
 
     if (state.profile) {
       const plan = calculatePlan(
@@ -131,7 +137,7 @@ export default function Dashboard({ onResetOnboarding }: DashboardProps) {
       {/* Header */}
       <header className={styles.header}>
         <h1>Today</h1>
-        <button className="btn btn-outline" onClick={onResetOnboarding}>
+        <button className="btn btn-outline" onClick={() => setShowSettings(true)}>
           Settings
         </button>
       </header>
@@ -299,6 +305,14 @@ export default function Dashboard({ onResetOnboarding }: DashboardProps) {
         <Camera
           onCapture={handleCapture}
           onClose={() => setShowCamera(false)}
+        />
+      )}
+
+      {/* Settings Modal */}
+      {showSettings && (
+        <Settings
+          onClose={() => setShowSettings(false)}
+          onReset={onResetOnboarding}
         />
       )}
     </div>
