@@ -13,6 +13,7 @@ import FoodResult from './FoodResult';
 import Settings from './Settings';
 import WorkoutTab from './WorkoutTab';
 import HistoryTab from './HistoryTab';
+import Icon from './Icons';
 import styles from './Dashboard.module.css';
 
 interface DashboardProps {
@@ -20,7 +21,7 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ onResetOnboarding }: DashboardProps) {
-  const [activeTab, setActiveTab] = useState<'today' | 'workout' | 'history'>('today');
+  const [activeTab, setActiveTab] = useState<'today' | 'workout' | 'history' | 'settings'>('today');
   const [foodLog, setFoodLog] = useState<FoodEntry[]>([]);
   const [profile, setProfile] = useState<{ dailyCalories: number; protein: number } | null>(null);
   const [apiKeys, setApiKeys] = useState<ApiKeys>({});
@@ -139,10 +140,7 @@ export default function Dashboard({ onResetOnboarding }: DashboardProps) {
     <div className={styles.container}>
       {/* Header */}
       <header className={styles.header}>
-        <h1>{activeTab === 'today' ? 'Today' : activeTab === 'workout' ? 'Workout' : 'History'}</h1>
-        <button className="btn btn-outline" onClick={() => setShowSettings(true)}>
-          Settings
-        </button>
+        <h1>{activeTab === 'today' ? 'Today' : activeTab === 'workout' ? 'Workout' : activeTab === 'history' ? 'History' : 'Settings'}</h1>
       </header>
 
       {/* Tab Content */}
@@ -284,6 +282,12 @@ export default function Dashboard({ onResetOnboarding }: DashboardProps) {
 
       {activeTab === 'workout' && <WorkoutTab />}
       {activeTab === 'history' && <HistoryTab />}
+      {activeTab === 'settings' && (
+        <Settings
+          onClose={() => setActiveTab('today')}
+          onReset={onResetOnboarding}
+        />
+      )}
 
       {/* Status */}
       {status && (
@@ -333,22 +337,29 @@ export default function Dashboard({ onResetOnboarding }: DashboardProps) {
           className={`${styles.navBtn} ${activeTab === 'today' ? styles.navActive : ''}`}
           onClick={() => setActiveTab('today')}
         >
-          <span className={styles.navIcon}>🍽️</span>
+          <Icon name="flame" size={20} color={activeTab === 'today' ? 'var(--accent-light)' : 'var(--text-secondary)'} />
           <span className={styles.navLabel}>Today</span>
         </button>
         <button
           className={`${styles.navBtn} ${activeTab === 'workout' ? styles.navActive : ''}`}
           onClick={() => setActiveTab('workout')}
         >
-          <span className={styles.navIcon}>💪</span>
+          <Icon name="dumbbell" size={20} color={activeTab === 'workout' ? 'var(--accent-light)' : 'var(--text-secondary)'} />
           <span className={styles.navLabel}>Workout</span>
         </button>
         <button
           className={`${styles.navBtn} ${activeTab === 'history' ? styles.navActive : ''}`}
           onClick={() => setActiveTab('history')}
         >
-          <span className={styles.navIcon}>📅</span>
+          <Icon name="calendar" size={20} color={activeTab === 'history' ? 'var(--accent-light)' : 'var(--text-secondary)'} />
           <span className={styles.navLabel}>History</span>
+        </button>
+        <button
+          className={`${styles.navBtn} ${activeTab === 'settings' ? styles.navActive : ''}`}
+          onClick={() => setActiveTab('settings')}
+        >
+          <Icon name="settings" size={20} color={activeTab === 'settings' ? 'var(--accent-light)' : 'var(--text-secondary)'} />
+          <span className={styles.navLabel}>Settings</span>
         </button>
       </nav>
     </div>

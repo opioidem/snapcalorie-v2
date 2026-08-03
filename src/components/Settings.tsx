@@ -5,6 +5,7 @@ import { UserProfile, ApiKeys, VISION_SOURCES } from '@/lib/types';
 import { loadAppState, saveProfile, saveApiKeys, setVisionSource, clearAllData } from '@/lib/storage';
 import { calculatePlan } from '@/lib/fitness';
 import { THEMES, applyTheme, getThemeId, setThemeId } from '@/lib/themes';
+import Icon from './Icons';
 import styles from './Settings.module.css';
 
 interface SettingsProps {

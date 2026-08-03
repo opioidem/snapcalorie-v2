@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { WorkoutPlan, WorkoutStyle, Equipment, overload, generateWorkoutPlan, STYLE_LABELS, STYLE_LABELS_SHORT } from '@/lib/workout';
 import { loadAppState } from '@/lib/storage';
+import Icon from './Icons';
 import styles from './WorkoutTab.module.css';
 
 const WORKOUT_KEY = 'snapcal_workout_plan';
@@ -60,13 +61,6 @@ export default function WorkoutTab() {
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <h1>Workout</h1>
-        <button className="btn btn-outline" onClick={() => setShowSetup(!showSetup)}>
-          {plan ? 'Regenerate' : 'Create Plan'}
-        </button>
-      </header>
-
       {showSetup ? (
         <div className={styles.setup}>
           <h3>Plan Settings</h3>
@@ -103,13 +97,13 @@ export default function WorkoutTab() {
                 className={`${styles.equipBtn} ${setupEquipment === 'home' ? styles.equipActive : ''}`}
                 onClick={() => setSetupEquipment('home')}
               >
-                🏠 Home
+                <Icon name="settings" size={16} color="currentColor" /> Home
               </button>
               <button
                 className={`${styles.equipBtn} ${setupEquipment === 'gym' ? styles.equipActive : ''}`}
                 onClick={() => setSetupEquipment('gym')}
               >
-                🏋️ Gym
+                <Icon name="dumbbell" size={16} color="currentColor" /> Gym
               </button>
             </div>
           </div>
@@ -119,26 +113,13 @@ export default function WorkoutTab() {
         </div>
       ) : !plan ? (
         <div className={styles.empty}>
-          <div className={styles.emptyIcon}>💪</div>
-          <p>No workout plan yet</p>
+          <Icon name="dumbbell" size={48} color="var(--text-secondary)" />
+          <p style={{ marginTop: '1rem' }}>No workout plan yet</p>
           <p className={styles.emptyHint}>Tap "Create Plan" to generate one</p>
         </div>
       ) : (
         <>
-          {/* Day tabs */}
-          <div className={styles.dayTabs}>
-            {plan.days.map((day, i) => (
-              <button
-                key={i}
-                className={`${styles.dayTab} ${dayIndex === i ? styles.dayTabActive : ''}`}
-                onClick={() => setDayIndex(i)}
-              >
-                {STYLE_LABELS_SHORT[plan.style]} {i + 1}
-              </button>
-            ))}
-          </div>
-
-          {/* Week selector */}
+          {/* Week selector FIRST (above day tabs) */}
           <div className={styles.weekSelector}>
             {[1, 2, 3, 4].map(w => (
               <button
@@ -147,6 +128,19 @@ export default function WorkoutTab() {
                 onClick={() => setWeek(w)}
               >
                 W{w}
+              </button>
+            ))}
+          </div>
+
+          {/* Day tabs SECOND (below week selector) */}
+          <div className={styles.dayTabs}>
+            {plan.days.map((day, i) => (
+              <button
+                key={i}
+                className={`${styles.dayTab} ${dayIndex === i ? styles.dayTabActive : ''}`}
+                onClick={() => setDayIndex(i)}
+              >
+                {STYLE_LABELS_SHORT[plan.style]} {i + 1}
               </button>
             ))}
           </div>
@@ -179,7 +173,9 @@ export default function WorkoutTab() {
                       className={`${styles.exercise} ${done ? styles.exerciseDone : ''}`}
                       onClick={() => toggleExercise(week, dayIndex, i)}
                     >
-                      <div className={styles.check}>{done ? '✓' : ''}</div>
+                      <div className={styles.check}>
+                        {done && <Icon name="check" size={14} color="var(--accent-light)" />}
+                      </div>
                       <div className={styles.exInfo}>
                         <div className={styles.exName}>{ex.name}</div>
                         <div className={styles.exDetail}>

@@ -6,17 +6,6 @@ import { loadAppState } from '@/lib/storage';
 import { calculatePlan } from '@/lib/fitness';
 import styles from './HistoryTab.module.css';
 
-interface DaySummary {
-  date: string;
-  label: string;
-  totalCalories: number;
-  totalProtein: number;
-  totalCarbs: number;
-  totalFat: number;
-  mealCount: number;
-  entries: FoodEntry[];
-}
-
 function getLast30Days(): string[] {
   const days: string[] = [];
   const today = new Date();
@@ -36,13 +25,12 @@ function formatDate(dateStr: string): string {
 
   if (dateStr === today.toISOString().split('T')[0]) return 'Today';
   if (dateStr === yesterday.toISOString().split('T')[0]) return 'Yesterday';
-
   return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 }
 
 export default function HistoryTab() {
   const [allEntries, setAllEntries] = useState<FoodEntry[]>([]);
-  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [target, setTarget] = useState(2000);
 
   useEffect(() => {
@@ -61,119 +49,88 @@ export default function HistoryTab() {
     }
   }, []);
 
-  const days = getLast30Days().map(dateStr => {
-    const entries = allEntries.filter(e => e.date === dateStr);
-    return {
-      date: dateStr,
-      label: formatDate(dateStr),
-      totalCalories: Math.round(entries.reduce((s, e) => s + e.calories, 0)),
-      totalProtein: Math.round(entries.reduce((s, e) => s + e.protein, 0)),
-      totalCarbs: Math.round(entries.reduce((s, e) => s + e.carbs, 0)),
-      totalFat: Math.round(entries.reduce((s, e) => s + e.fat, 0)),
-      mealCount: entries.length,
-      entries,
-    };
-  });
-
-  const selected = selectedDay ? days.find(d => d.date === selectedDay) : null;
-  const totalLogged = allEntries.length;
-  const daysWithFood = days.filter(d => d.mealCount > 0).length;
+  const entries = allEntries.filter(e => e.date === selectedDate);
+  const totalCal = Math.round(entries.reduce((s, e) => s + e.calories, 0));
+  const totalP = Math.round(entries.reduce((s, e) => s + e.protein, 0));
+  const totalC = Math.round(entries.reduce((s, e) => s + e.carbs, 0));
+  const totalF = Math.round(entries.reduce((s, e) => s + e.fat, 0));
+  const pct = Math.min((totalCal / target) * 100, 100);
+  const isOver = totalCal > target;
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <h1>History</h1>
-        <div className={styles.stats}>
-          <span>{totalLogged} meals</span>
-          <span>·</span>
-          <span>{daysWithFood} days</span>
+      {/* Day picker — horizontal scroll */}
+      <div className={styles.dayPicker}>
+        {getLast30Days().map(dateStr => {
+          const d = new Date(dateStr + 'T12:00:00');
+          const hasFood = allEntries.some(e => e.date === dateStr);
+          return (
+            <button
+              key={dateStr}
+              className={`${styles.dayBtn} ${selectedDate === dateStr ? styles.dayBtnActive : ''} ${hasFood ? styles.dayBtnHasData : ''}`}
+              onClick={() => setSelectedDate(dateStr)}
+            >
+              <span className={styles.dayDow}>{d.toLocaleDateString('en-US', { weekday: 'short' })}</span>
+              <span className={styles.dayNum}>{d.getDate()}</span>
+              {hasFood && <span className={styles.dayDot} />}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Day label */}
+      <div className={styles.dayLabel}>
+        <h2>{formatDate(selectedDate)}</h2>
+        <span className={styles.dayDate}>{selectedDate}</span>
+      </div>
+
+      {/* Summary cards */}
+      <div className={styles.summaryGrid}>
+        <div className={styles.summaryCard}>
+          <span className={`${styles.summaryValue} ${isOver ? styles.overValue : ''}`}>{totalCal}</span>
+          <span className={styles.summaryLabel}>kcal</span>
         </div>
-      </header>
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryValue}>{totalP}g</span>
+          <span className={styles.summaryLabel}>protein</span>
+        </div>
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryValue}>{totalC}g</span>
+          <span className={styles.summaryLabel}>carbs</span>
+        </div>
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryValue}>{totalF}g</span>
+          <span className={styles.summaryLabel}>fat</span>
+        </div>
+      </div>
 
-      {selected ? (
-        <div className={styles.detail}>
-          <button className={styles.backBtn} onClick={() => setSelectedDay(null)}>
-            ← Back to all days
-          </button>
+      {/* Progress bar */}
+      <div className={styles.progressWrap}>
+        <div className={styles.progressBar}>
+          <div
+            className={`${styles.progressFill} ${isOver ? styles.overBar : ''}`}
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+        <span className={styles.progressText}>
+          {isOver ? `${totalCal - target} over target` : `${target - totalCal} remaining`}
+        </span>
+      </div>
 
-          <div className={styles.detailHeader}>
-            <h2>{selected.label}</h2>
-            <span className={styles.detailDate}>{selected.date}</span>
-          </div>
-
-          {/* Summary cards */}
-          <div className={styles.summaryGrid}>
-            <div className={styles.summaryCard}>
-              <span className={styles.summaryValue}>{selected.totalCalories}</span>
-              <span className={styles.summaryLabel}>kcal</span>
-            </div>
-            <div className={styles.summaryCard}>
-              <span className={styles.summaryValue}>{selected.totalProtein}g</span>
-              <span className={styles.summaryLabel}>protein</span>
-            </div>
-            <div className={styles.summaryCard}>
-              <span className={styles.summaryValue}>{selected.totalCarbs}g</span>
-              <span className={styles.summaryLabel}>carbs</span>
-            </div>
-            <div className={styles.summaryCard}>
-              <span className={styles.summaryValue}>{selected.totalFat}g</span>
-              <span className={styles.summaryLabel}>fat</span>
-            </div>
-          </div>
-
-          {/* Meal list */}
-          {selected.entries.length === 0 ? (
-            <div className={styles.empty}>
-              <p>No meals logged this day</p>
-            </div>
-          ) : (
-            <div className={styles.mealList}>
-              {selected.entries.map(entry => (
-                <div key={entry.id} className={styles.mealItem}>
-                  <div className={styles.mealInfo}>
-                    <div className={styles.mealName}>{entry.name}</div>
-                    <div className={styles.mealMeta}>
-                      {entry.servingLabel} · {entry.source}
-                    </div>
-                  </div>
-                  <div className={styles.mealCals}>{Math.round(entry.calories)} kcal</div>
-                </div>
-              ))}
-            </div>
-          )}
+      {/* Meal list */}
+      {entries.length === 0 ? (
+        <div className={styles.empty}>
+          <p>No meals logged on this day</p>
         </div>
       ) : (
-        <div className={styles.dayList}>
-          {days.map(day => (
-            <div
-              key={day.date}
-              className={`${styles.dayCard} ${day.mealCount === 0 ? styles.dayEmpty : ''}`}
-              onClick={() => day.mealCount > 0 && setSelectedDay(day.date)}
-            >
-              <div className={styles.dayLeft}>
-                <div className={styles.dayLabel}>{day.label}</div>
-                <div className={styles.dayDate}>{day.date}</div>
+        <div className={styles.mealList}>
+          {entries.map(entry => (
+            <div key={entry.id} className={styles.mealItem}>
+              <div className={styles.mealInfo}>
+                <div className={styles.mealName}>{entry.name}</div>
+                <div className={styles.mealMeta}>{entry.servingLabel} · {entry.source}</div>
               </div>
-
-              <div className={styles.dayMiddle}>
-                {day.mealCount > 0 ? (
-                  <>
-                    <div className={styles.dayCal}>{day.totalCalories} kcal</div>
-                    <div className={styles.dayMeals}>{day.mealCount} meals</div>
-                  </>
-                ) : (
-                  <div className={styles.dayNoData}>—</div>
-                )}
-              </div>
-
-              {day.mealCount > 0 && (
-                <div className={styles.dayBar}>
-                  <div
-                    className={`${styles.dayBarFill} ${day.totalCalories > target ? styles.overTarget : ''}`}
-                    style={{ width: `${Math.min((day.totalCalories / target) * 100, 100)}%` }}
-                  />
-                </div>
-              )}
+              <div className={styles.mealCals}>{Math.round(entry.calories)} kcal</div>
             </div>
           ))}
         </div>

@@ -1,60 +1,84 @@
 .container {
   padding-bottom: 5rem;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-}
-
-.header h1 {
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
-.stats {
-  display: flex;
-  gap: 0.5rem;
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-}
-
-/* Back button */
-.backBtn {
-  display: block;
-  background: none;
-  border: none;
-  color: var(--accent-light);
-  font-family: inherit;
-  font-size: 0.875rem;
-  cursor: pointer;
-  padding: 0.75rem 0;
-  margin-bottom: 0.5rem;
-}
-
-.backBtn:hover {
-  text-decoration: underline;
-}
-
-/* Detail */
-.detail {
-  padding: 0 1rem;
   animation: fade-in 0.3s ease;
 }
 
-.detailHeader {
-  margin-bottom: 1rem;
+/* Day picker */
+.dayPicker {
+  display: flex;
+  overflow-x: auto;
+  padding: 0 0.5rem 0.75rem;
+  gap: 0.25rem;
+  scrollbar-width: none;
 }
 
-.detailHeader h2 {
+.dayPicker::-webkit-scrollbar {
+  display: none;
+}
+
+.dayBtn {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.5rem 0.625rem;
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  color: var(--text-secondary);
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  position: relative;
+  min-width: 44px;
+}
+
+.dayBtn:hover {
+  border-color: var(--accent);
+}
+
+.dayBtnActive {
+  border-color: var(--accent);
+  background: var(--bg-card-raised);
+  color: var(--accent-light);
+}
+
+.dayDow {
+  font-size: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.dayNum {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.dayDot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  position: absolute;
+  bottom: 4px;
+}
+
+.dayBtnHasData .dayDot {
+  display: block;
+}
+
+/* Day label */
+.dayLabel {
+  padding: 0.75rem 1rem;
+}
+
+.dayLabel h2 {
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 0.25rem;
 }
 
-.detailDate {
+.dayDate {
   font-size: 0.75rem;
   color: var(--text-secondary);
 }
@@ -64,14 +88,15 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 0.5rem;
-  margin-bottom: 1.5rem;
+  padding: 0 1rem;
+  margin-bottom: 1rem;
 }
 
 .summaryCard {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0.75rem;
+  padding: 0.75rem 0.5rem;
   background: var(--bg-card);
   border: 1px solid var(--border);
 }
@@ -82,17 +107,48 @@
   color: var(--accent-light);
 }
 
+.overValue {
+  color: var(--error);
+}
+
 .summaryLabel {
-  font-size: 0.625rem;
+  font-size: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--text-secondary);
 }
 
+/* Progress */
+.progressWrap {
+  padding: 0 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.progressBar {
+  height: 6px;
+  background: var(--bg-card);
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+
+.overBar {
+  background: var(--error);
+}
+
+.progressText {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
 /* Meal list */
 .mealList {
-  background: var(--bg-card);
-  border: 2px solid var(--border);
+  padding: 0 1rem;
 }
 
 .mealItem {
@@ -132,83 +188,4 @@
   padding: 3rem 1rem;
   color: var(--text-secondary);
   font-size: 0.875rem;
-}
-
-/* Day list */
-.dayList {
-  padding: 0 1rem;
-}
-
-.dayCard {
-  display: flex;
-  align-items: center;
-  padding: 1rem;
-  border-bottom: 1px solid var(--border);
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.dayCard:hover {
-  background: var(--bg-card-raised);
-}
-
-.dayEmpty {
-  opacity: 0.4;
-  cursor: default;
-}
-
-.dayEmpty:hover {
-  background: transparent;
-}
-
-.dayLeft {
-  min-width: 100px;
-}
-
-.dayLabel {
-  font-weight: 500;
-  font-size: 0.875rem;
-}
-
-.dayDate {
-  font-size: 0.625rem;
-  color: var(--text-secondary);
-}
-
-.dayMiddle {
-  flex: 1;
-  text-align: center;
-}
-
-.dayCal {
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-.dayMeals {
-  font-size: 0.625rem;
-  color: var(--text-secondary);
-}
-
-.dayNoData {
-  color: var(--text-secondary);
-  font-size: 1.25rem;
-}
-
-.dayBar {
-  width: 60px;
-  height: 6px;
-  background: var(--bg-card);
-  overflow: hidden;
-  margin-left: 0.75rem;
-}
-
-.dayBarFill {
-  height: 100%;
-  background: var(--accent);
-  transition: width 0.3s ease;
-}
-
-.dayBarFill.overTarget {
-  background: var(--error);
 }
