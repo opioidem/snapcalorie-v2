@@ -11,6 +11,8 @@ import { applyTheme, getThemeId } from '@/lib/themes';
 import Camera from './Camera';
 import FoodResult from './FoodResult';
 import Settings from './Settings';
+import WorkoutTab from './WorkoutTab';
+import HistoryTab from './HistoryTab';
 import styles from './Dashboard.module.css';
 
 interface DashboardProps {
@@ -18,6 +20,7 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ onResetOnboarding }: DashboardProps) {
+  const [activeTab, setActiveTab] = useState<'today' | 'workout' | 'history'>('today');
   const [foodLog, setFoodLog] = useState<FoodEntry[]>([]);
   const [profile, setProfile] = useState<{ dailyCalories: number; protein: number } | null>(null);
   const [apiKeys, setApiKeys] = useState<ApiKeys>({});
@@ -136,134 +139,151 @@ export default function Dashboard({ onResetOnboarding }: DashboardProps) {
     <div className={styles.container}>
       {/* Header */}
       <header className={styles.header}>
-        <h1>Today</h1>
+        <h1>{activeTab === 'today' ? 'Today' : activeTab === 'workout' ? 'Workout' : 'History'}</h1>
         <button className="btn btn-outline" onClick={() => setShowSettings(true)}>
           Settings
         </button>
       </header>
 
-      {/* Date Strip */}
-      <div className={styles.dateStrip}>
-        {getLast7Days().map((date) => (
-          <div
-            key={date.date}
-            className={`${styles.dateChip} ${date.date === selectedDate ? styles.active : ''}`}
-            onClick={() => setSelectedDate(date.date)}
-          >
-            <span className={styles.dateChipDay}>{date.day}</span>
-            <span className={styles.dateChipDate}>{date.num}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* Hero */}
-      <div className={styles.hero}>
-        <div className={styles.heroGlow} />
-        <div className={styles.heroLabel}>
-          {isOver ? 'Over target' : 'Remaining today'}
-        </div>
-        <div className={`${styles.heroNumber} ${isOver ? styles.over : ''}`}>
-          {Math.abs(remaining)}
-        </div>
-        <div className={styles.heroSub}>
-          {isOver ? `${Math.abs(remaining)} over` : `of ${profile?.dailyCalories || 2000}`}
-        </div>
-      </div>
-
-      {/* Day Rail */}
-      {todayFood.length > 0 && (
-        <div className={styles.dayRail}>
-          {todayFood.map((food, i) => {
-            const fraction = food.calories / consumed;
-            const dominantMacro = food.protein >= food.carbs && food.protein >= food.fat
-              ? 'protein'
-              : food.carbs >= food.fat ? 'carbs' : 'fat';
-            return (
+      {/* Tab Content */}
+      {activeTab === 'today' && (
+        <>
+          {/* Date Strip */}
+          <div className={styles.dateStrip}>
+            {getLast7Days().map((date) => (
               <div
-                key={food.id}
-                className={`${styles.railSegment} ${styles[dominantMacro]}`}
-                style={{ width: `${fraction * 100}%`, transform: 'scaleX(0)' }}
-                ref={(el) => {
-                  if (el) requestAnimationFrame(() => {
-                    el.style.transform = 'scaleX(1)';
-                  });
-                }}
-              />
-            );
-          })}
-        </div>
-      )}
-
-      {/* Macro Bars */}
-      <div className={styles.macroSection}>
-        <div className="macro-bar">
-          <span className="macro-bar-label">Protein</span>
-          <div className="macro-bar-track">
-            <div
-              className="macro-bar-fill protein"
-              style={{ width: `${Math.min((protein / (profile?.protein || 150)) * 100, 100)}%` }}
-            />
-          </div>
-          <span className="macro-bar-value">{Math.round(protein)} / {profile?.protein || 150}g</span>
-        </div>
-
-        <div className="macro-bar">
-          <span className="macro-bar-label">Carbs</span>
-          <div className="macro-bar-track">
-            <div
-              className="macro-bar-fill carbs"
-              style={{ width: `${Math.min((carbs / 200) * 100, 100)}%` }}
-            />
-          </div>
-          <span className="macro-bar-value">{Math.round(carbs)} / 200g</span>
-        </div>
-
-        <div className="macro-bar">
-          <span className="macro-bar-label">Fat</span>
-          <div className="macro-bar-track">
-            <div
-              className="macro-bar-fill fat"
-              style={{ width: `${Math.min((fat / 70) * 100, 100)}%` }}
-            />
-          </div>
-          <span className="macro-bar-value">{Math.round(fat)} / 70g</span>
-        </div>
-      </div>
-
-      {/* Food Log */}
-      <div className={styles.foodLog}>
-        <h2>Food Log</h2>
-
-        {todayFood.length === 0 ? (
-          <div className={styles.emptyState}>
-            <div className={styles.emptyIcon}>🍽️</div>
-            <p>No food logged today</p>
-            <p className={styles.emptyHint}>Tap the + button to add a meal</p>
-          </div>
-        ) : (
-          <div className={styles.foodList}>
-            {todayFood.map((food) => (
-              <div key={food.id} className={styles.foodEntry}>
-                <div className={styles.foodInfo}>
-                  <div className={styles.foodName}>{food.name}</div>
-                  <div className={styles.foodMeta}>
-                    {food.servingLabel} · {food.source}
-                  </div>
-                </div>
-                <div className={styles.foodCalories}>
-                  {Math.round(food.calories)} kcal
-                </div>
-                <button
-                  className={styles.deleteBtn}
-                  onClick={() => handleDelete(food.id)}
-                >
-                  ×
-                </button>
+                key={date.date}
+                className={`${styles.dateChip} ${date.date === selectedDate ? styles.active : ''}`}
+                onClick={() => setSelectedDate(date.date)}
+              >
+                <span className={styles.dateChipDay}>{date.day}</span>
+                <span className={styles.dateChipDate}>{date.num}</span>
               </div>
             ))}
           </div>
-        )}
-      </div>
+
+          {/* Hero */}
+          <div className={styles.hero}>
+            <div className={styles.heroGlow} />
+            <div className={styles.heroLabel}>
+              {isOver ? 'Over target' : 'Remaining today'}
+            </div>
+            <div className={`${styles.heroNumber} ${isOver ? styles.over : ''}`}>
+              {Math.abs(remaining)}
+            </div>
+            <div className={styles.heroSub}>
+              {isOver ? `${Math.abs(remaining)} over` : `of ${profile?.dailyCalories || 2000}`}
+            </div>
+          </div>
+
+          {/* Day Rail */}
+          {todayFood.length > 0 && (
+            <div className={styles.dayRail}>
+              {todayFood.map((food) => {
+                const fraction = food.calories / consumed;
+                const dominantMacro = food.protein >= food.carbs && food.protein >= food.fat
+                  ? 'protein'
+                  : food.carbs >= food.fat ? 'carbs' : 'fat';
+                return (
+                  <div
+                    key={food.id}
+                    className={`${styles.railSegment} ${styles[dominantMacro]}`}
+                    style={{ width: `${fraction * 100}%`, transform: 'scaleX(0)' }}
+                    ref={(el) => {
+                      if (el) requestAnimationFrame(() => {
+                        el.style.transform = 'scaleX(1)';
+                      });
+                    }}
+                  />
+                );
+              })}
+            </div>
+          )}
+
+          {/* Macro Bars */}
+          <div className={styles.macroSection}>
+            <div className="macro-bar">
+              <span className="macro-bar-label">Protein</span>
+              <div className="macro-bar-track">
+                <div
+                  className="macro-bar-fill protein"
+                  style={{ width: `${Math.min((protein / (profile?.protein || 150)) * 100, 100)}%` }}
+                />
+              </div>
+              <span className="macro-bar-value">{Math.round(protein)} / {profile?.protein || 150}g</span>
+            </div>
+
+            <div className="macro-bar">
+              <span className="macro-bar-label">Carbs</span>
+              <div className="macro-bar-track">
+                <div
+                  className="macro-bar-fill carbs"
+                  style={{ width: `${Math.min((carbs / 200) * 100, 100)}%` }}
+                />
+              </div>
+              <span className="macro-bar-value">{Math.round(carbs)} / 200g</span>
+            </div>
+
+            <div className="macro-bar">
+              <span className="macro-bar-label">Fat</span>
+              <div className="macro-bar-track">
+                <div
+                  className="macro-bar-fill fat"
+                  style={{ width: `${Math.min((fat / 70) * 100, 100)}%` }}
+                />
+              </div>
+              <span className="macro-bar-value">{Math.round(fat)} / 70g</span>
+            </div>
+          </div>
+
+          {/* Food Log */}
+          <div className={styles.foodLog}>
+            <h2>Food Log</h2>
+
+            {todayFood.length === 0 ? (
+              <div className={styles.emptyState}>
+                <div className={styles.emptyIcon}>🍽️</div>
+                <p>No food logged today</p>
+                <p className={styles.emptyHint}>Tap the + button to add a meal</p>
+              </div>
+            ) : (
+              <div className={styles.foodList}>
+                {todayFood.map((food) => (
+                  <div key={food.id} className={styles.foodEntry}>
+                    <div className={styles.foodInfo}>
+                      <div className={styles.foodName}>{food.name}</div>
+                      <div className={styles.foodMeta}>
+                        {food.servingLabel} · {food.source}
+                      </div>
+                    </div>
+                    <div className={styles.foodCalories}>
+                      {Math.round(food.calories)} kcal
+                    </div>
+                    <button
+                      className={styles.deleteBtn}
+                      onClick={() => handleDelete(food.id)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* FAB */}
+          <button
+            className={styles.fab}
+            onClick={() => setShowCamera(true)}
+            disabled={analyzing}
+          >
+            +
+          </button>
+        </>
+      )}
+
+      {activeTab === 'workout' && <WorkoutTab />}
+      {activeTab === 'history' && <HistoryTab />}
 
       {/* Status */}
       {status && (
@@ -291,15 +311,6 @@ export default function Dashboard({ onResetOnboarding }: DashboardProps) {
         />
       )}
 
-      {/* FAB */}
-      <button
-        className={styles.fab}
-        onClick={() => setShowCamera(true)}
-        disabled={analyzing}
-      >
-        +
-      </button>
-
       {/* Camera Modal */}
       {showCamera && (
         <Camera
@@ -315,6 +326,31 @@ export default function Dashboard({ onResetOnboarding }: DashboardProps) {
           onReset={onResetOnboarding}
         />
       )}
+
+      {/* Bottom Navigation */}
+      <nav className={styles.bottomNav}>
+        <button
+          className={`${styles.navBtn} ${activeTab === 'today' ? styles.navActive : ''}`}
+          onClick={() => setActiveTab('today')}
+        >
+          <span className={styles.navIcon}>🍽️</span>
+          <span className={styles.navLabel}>Today</span>
+        </button>
+        <button
+          className={`${styles.navBtn} ${activeTab === 'workout' ? styles.navActive : ''}`}
+          onClick={() => setActiveTab('workout')}
+        >
+          <span className={styles.navIcon}>💪</span>
+          <span className={styles.navLabel}>Workout</span>
+        </button>
+        <button
+          className={`${styles.navBtn} ${activeTab === 'history' ? styles.navActive : ''}`}
+          onClick={() => setActiveTab('history')}
+        >
+          <span className={styles.navIcon}>📅</span>
+          <span className={styles.navLabel}>History</span>
+        </button>
+      </nav>
     </div>
   );
 }

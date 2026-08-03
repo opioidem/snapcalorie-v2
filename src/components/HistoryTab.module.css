@@ -1,0 +1,214 @@
+.container {
+  padding-bottom: 5rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+}
+
+.header h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.stats {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* Back button */
+.backBtn {
+  display: block;
+  background: none;
+  border: none;
+  color: var(--accent-light);
+  font-family: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0.75rem 0;
+  margin-bottom: 0.5rem;
+}
+
+.backBtn:hover {
+  text-decoration: underline;
+}
+
+/* Detail */
+.detail {
+  padding: 0 1rem;
+  animation: fade-in 0.3s ease;
+}
+
+.detailHeader {
+  margin-bottom: 1rem;
+}
+
+.detailHeader h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.detailDate {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* Summary grid */
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.summaryCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+}
+
+.summaryValue {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--accent-light);
+}
+
+.summaryLabel {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+/* Meal list */
+.mealList {
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+}
+
+.mealItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.mealItem:last-child {
+  border-bottom: none;
+}
+
+.mealInfo {
+  flex: 1;
+}
+
+.mealName {
+  font-weight: 500;
+  font-size: 0.875rem;
+  margin-bottom: 0.125rem;
+}
+
+.mealMeta {
+  font-size: 0.625rem;
+  color: var(--text-secondary);
+}
+
+.mealCals {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+/* Day list */
+.dayList {
+  padding: 0 1rem;
+}
+
+.dayCard {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.dayCard:hover {
+  background: var(--bg-card-raised);
+}
+
+.dayEmpty {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.dayEmpty:hover {
+  background: transparent;
+}
+
+.dayLeft {
+  min-width: 100px;
+}
+
+.dayLabel {
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.dayDate {
+  font-size: 0.625rem;
+  color: var(--text-secondary);
+}
+
+.dayMiddle {
+  flex: 1;
+  text-align: center;
+}
+
+.dayCal {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.dayMeals {
+  font-size: 0.625rem;
+  color: var(--text-secondary);
+}
+
+.dayNoData {
+  color: var(--text-secondary);
+  font-size: 1.25rem;
+}
+
+.dayBar {
+  width: 60px;
+  height: 6px;
+  background: var(--bg-card);
+  overflow: hidden;
+  margin-left: 0.75rem;
+}
+
+.dayBarFill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+
+.dayBarFill.overTarget {
+  background: var(--error);
+}
